@@ -3,5 +3,5 @@ Image=socar:latest
 Environment=SOCK_DIR=/socks
 
 [Service]
-ExecStartPre=podman build -t socar:latest /etc/containers/templates/socar/Containerfile
+ExecStartPre=podman build -t socar:latest /etc/containers/templates/socar
 Restart=on-failure
