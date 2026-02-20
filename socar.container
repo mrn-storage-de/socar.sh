@@ -1,6 +1,7 @@
 [Container]
 Image=socar:latest
 Environment=SOCK_DIR=/socks
+Environment=SOCK_UMASK=0000
 
 [Service]
 ExecStartPre=podman build -t socar:latest /etc/containers/templates/socar
