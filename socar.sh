@@ -22,8 +22,9 @@
 #   http:80/udp
 #
 # Environment variables:
-#   SOCK_DIR  directory for Unix sockets (default: /tmp)
-#   SOCAT_BUF transfer buffer size in bytes (default: 8192)
+#   SOCK_DIR    directory for Unix sockets (default: /tmp)
+#   SOCK_UMASK  umask for Unix socket permissions (default: 0007)
+#   SOCAT_BUF   transfer buffer size in bytes (default: 8192)
 #
 # Performance notes:
 # >> publishers note:
@@ -53,6 +54,11 @@ if [[ -z "$SOCK_DIR" ]]; then
     SOCK_DIR=/tmp
 fi
 
+# Umask for Unix socket permissions, override with SOCK_UMASK env variable
+if [[ -z "$SOCK_UMASK" ]]; then
+    SOCK_UMASK=0007
+fi
+
 # Create the socket directory if it doesn't exist
 mkdir -p "$SOCK_DIR" || { echo "Failed to create SOCK_DIR: $SOCK_DIR" >&2; exit 1; }
 
@@ -78,7 +84,7 @@ trap 'cleanup "$@"' INT TERM
 hsv_to_ansi() {
     local h=$1 s=$2 v=$3
     python3 -c "
-import colorsys, sys
+import colorsys
 r, g, b = colorsys.hsv_to_rgb($h/360, $s, $v)
 r, g, b = int(r*255), int(g*255), int(b*255)
 print(f'\033[38;2;{r};{g};{b}m')
@@ -126,7 +132,7 @@ for arg in "$@"; do
         tgt_port="$right"
         name="$tgt_port"
         run_socat "yank:${name}:${tgt_port}/${proto}" "$color" \
-            "UNIX-LISTEN:${SOCK_DIR}/${name}.sock,fork,unlink-early" \
+            "UNIX-LISTEN:${SOCK_DIR}/${name}.sock,fork,unlink-early,umask=${SOCK_UMASK}" \
             "${proto_upper}:localhost:${tgt_port}"
         run_socat "yeet:${src_port}:${name}/${proto}" "$color" \
             "${proto_upper}-LISTEN:${src_port},fork,reuseaddr" \
@@ -143,7 +149,7 @@ for arg in "$@"; do
         name="$left"
         port="$right"
         run_socat "yank:${name}:${port}/${proto}" "$color" \
-            "UNIX-LISTEN:${SOCK_DIR}/${name}.sock,fork,unlink-early" \
+            "UNIX-LISTEN:${SOCK_DIR}/${name}.sock,fork,unlink-early,umask=${SOCK_UMASK}" \
             "${proto_upper}:localhost:${port}"
     else
         echo "Invalid pair: '$arg' (could not determine which side is the port)" >&2
