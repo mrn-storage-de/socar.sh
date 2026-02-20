@@ -1,0 +1,7 @@
+[Container]
+Image=socar:latest
+Environment=SOCK_DIR=/socks
+
+[Service]
+ExecStartPre=podman build -t socar:latest https://gist.githubusercontent.com/0x1e02/12a97ca87321a0fd30f12e3a260354bb/raw/Containerfile
+Restart=on-failure
