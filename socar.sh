@@ -108,14 +108,16 @@ for arg in "$@"; do
     hue=$(( RANDOM % 360 ))
     color=$(hsv_to_ansi "$hue" 0.9 0.95)
 
-    # Split off optional /tcp or /udp suffix
-    proto="${arg##*/}"
-    if [[ "$proto" == "udp" || "$proto" == "tcp" ]]; then
-        pair="${arg%/*}"
-    else
-        proto="tcp"
-        pair="$arg"
-    fi
+    # # Split off optional /tcp or /udp suffix
+    # proto="${arg##*/}"
+    # if [[ "$proto" == "udp" || "$proto" == "tcp" ]]; then
+    #     pair="${arg%/*}"
+    # else
+    #     proto="tcp"
+    #     pair="$arg"
+    # fi
+    proto="tcp"
+    pair="$arg"
     proto_upper="${proto^^}"
 
     left="${pair%%:*}"
